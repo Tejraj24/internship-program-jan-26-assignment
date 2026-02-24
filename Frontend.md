@@ -30,6 +30,295 @@ You need to put your solution here.
 
 ---
 
+### Summary.md contains:
+
+- Video metadata (filename, duration, processing date)
+- High-level summary
+- Key highlights with timestamps
+- Takeaways or action items
+- Links to generated clips and screenshots
+
+This predictable structure helps users easily navigate results.
+
+---
+
+# 1. Screens (User Interface)
+
+## 1.1 Upload Screen
+
+This is the entry point where users upload videos.
+
+### Components
+
+- Drag-and-drop upload area
+- File selector button
+- Supported file format message
+- File size limit information
+- Upload progress bar
+- Cancel upload option
+- Error notification area
+
+### UX Flow
+
+1. User selects or drags a video file.
+2. The system validates format and size.
+3. Upload begins and progress is displayed.
+4. Once uploaded, a **processing job is created**.
+5. The user is redirected to the **Jobs List page**.
+
+If upload fails (network issue or invalid file), a **retry option** appears.
+
+---
+
+## 1.2 Jobs List Screen
+
+This screen shows all video processing jobs.
+
+### Layout
+
+A table or card layout containing:
+
+- Video name
+- Upload time
+- Job status
+- Processing progress
+- Action button (View Details)
+
+### Status Indicators
+
+| Status | Meaning |
+|------|------|
+| Queued | Waiting to start |
+| Processing | Currently analyzing video |
+| Success | Processing completed |
+| Failed | Job failed |
+| Partial | Some outputs ready |
+
+### UX Features
+
+- Auto-refresh for active jobs
+- Pagination or infinite scroll
+- Clicking a job opens the **Job Detail page**
+
+---
+
+## 1.3 Job Detail Screen (Status + Logs)
+
+This page displays detailed information about a specific job.
+
+### Job Information
+
+- Job ID
+- Video name
+- Upload date
+- Current status
+
+### Processing Steps
+
+The UI shows progress through stages such as:
+
+1. Video transcription
+2. Summary generation
+3. Highlight detection
+4. Asset extraction
+
+### Logs Panel
+
+A scrollable log section showing processing events.
+
+Example logs:
+
+- Video uploaded successfully
+- Transcription started
+- Summary generation started
+- Highlight extraction completed
+
+### UX Features
+
+- Live progress updates
+- Retry button for failed jobs
+- Display **correlation ID** for debugging
+
+---
+
+## 1.4 Results Screen
+
+After processing completes, users can view the generated outputs.
+
+The results page contains three tabs.
+
+### Summary Tab
+
+Displays the generated Markdown summary.
+
+Features:
+
+- Clean reading view
+- Copy summary button
+- Download `.md` file
+
+---
+
+### Highlights Tab
+
+Displays important moments from the video.
+
+Each highlight contains:
+
+- Description
+- Timestamp
+
+Clicking a timestamp jumps to that moment in the video.
+
+Example:
+
+- **02:15** – Introduction to topic
+- **07:40** – Key explanation
+
+---
+
+### Assets Tab
+
+Displays generated assets.
+
+Assets include:
+
+- Highlight clips
+- Screenshots
+
+Users can download individual files or **download all assets as a ZIP file**.
+
+---
+
+# 2. UI State Management
+
+Because processing takes time, the UI must represent the job state clearly.
+
+Supported states:
+
+| State | UI Behavior |
+|------|------|
+| Uploading | Show progress bar |
+| Queued | Show waiting indicator |
+| Processing | Animated progress + step indicator |
+| Partial | Show available results |
+| Failed | Error message + retry option |
+| Success | Results available |
+
+The UI always reflects the **backend job state** to avoid incorrect assumptions.
+
+---
+
+# 3. API Calling Strategy
+
+## Job Creation
+
+After uploading a video, the backend returns a **job_id**.
+
+The frontend uses this ID to track progress.
+
+---
+
+## Job Status Updates
+
+The frontend periodically checks job status using **polling**.
+
+Polling strategy:
+
+- Request job status every **5 seconds**
+- Stop polling once job completes
+- Increase interval if server errors occur
+
+Alternative approach:
+
+If supported, use **Server-Sent Events (SSE)** so the server can push real-time updates.
+
+---
+
+## Navigation Safety
+
+When users leave the page:
+
+- Active API requests are cancelled
+- Prevents unnecessary network usage
+
+---
+
+# 4. Browser Caching Strategy
+
+Caching improves performance and reduces repeated API calls.
+
+### Cached Data
+
+- Job list
+- Job details
+- Completed results
+
+### Cache Rules
+
+- Job list refreshes every few minutes
+- Job details refresh while processing
+- Completed results remain cached longer
+
+### Offline Handling
+
+If internet connection is lost:
+
+- Cached job list is displayed
+- Upload disabled
+- Offline notification shown
+
+---
+
+# 5. Debugging and Observability
+
+If users report that a job is stuck, the frontend should provide debugging information.
+
+### Displayed Debug Information
+
+- Job ID
+- Correlation ID
+- Last update time
+- Processing logs
+
+### Troubleshooting Steps
+
+1. Verify API responses for job status.
+2. Check polling requests in network logs.
+3. Inspect log messages for errors.
+4. Allow manual refresh of job status.
+
+These features help developers quickly diagnose issues.
+
+---
+
+# 6. UX for Long Processing Jobs
+
+Video processing may take several minutes.
+
+To maintain a good user experience:
+
+- Display continuous progress updates
+- Allow navigation while processing continues
+- Notify users when jobs complete
+- Show partial results early if available
+
+This ensures users remain informed throughout the process.
+
+---
+
+# Final Design Principle
+
+The frontend behaves as a **state-driven interface** based on backend job status.
+
+Job lifecycle:
+
+Queued → Processing → Success / Failed
+
+By clearly representing each state and providing detailed progress updates, the system allows users to quickly understand the results of long videos without watching the entire recording.
+
+---
+
 ## **Problem 2: LinkedIn Automation Platform (Frontend System Design)**
 
 **Goal:** Connect LinkedIn → persona setup → draft preview → approve → schedule → posting history. [READ MORE ABOUT THE PROJECT](./linkedin-automation.md)

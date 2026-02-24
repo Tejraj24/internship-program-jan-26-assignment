@@ -47,3 +47,15 @@ Please follow the below steps to submit your assignment:
 6. [Submit your submission on this link.](https://docs.google.com/forms/d/e/1FAIpQLSePDzA-By9Anfv5Z_JDV8NRPqtCa6pfC1kx5np5R0DSDpLDGA/viewform)
 
 ---
+
+import React from "react";
+import UploadForm from "../components/UploadForm";
+
+export default function UploadPage() {
+  return (
+    <main className="p-6 max-w-3xl mx-auto">
+      <h1 className="text-2xl font-semibold mb-4">Upload Video</h1>
+      <UploadForm />
+    </main>
+  );
+}
